@@ -1,5 +1,5 @@
 import React from 'react'
-import { Outlet, Link, useLoaderData, Form } from 'react-router-dom'
+import { Outlet, NavLink, useLoaderData, Form, useNavigation } from 'react-router-dom'
 import { getContacts, createContact } from "../contact";
 
 export async function loader() {
@@ -16,7 +16,8 @@ export async function action() {
 
 function Root() {
   const { contacts } = useLoaderData();
-
+  const navigation = useNavigation();
+  
   return (
     <>
         <div id='sidebar'>
@@ -44,14 +45,19 @@ function Root() {
             <ul>
             {contacts.map((contact) => (
               <li key={contact.id}>
-               <Link to={`contacts/${contact.id}`} >
+               <NavLink
+                className={({isActive, isPending}) => {
+                  // eslint-disable-next-line no-unused-expressions
+                  isActive ? "active" : isPending ? "pending" : ""
+                }}
+                to={`contacts/${contact.id}`} >
                 {contact.first || contact.last ? (
                   <>{contact.first} {contact.last}</>
                 ) : (
                   <i>No name</i>
                 )}
                 {contact.favorite && <span>*</span>}
-               </Link>
+               </NavLink>
               </li>
             ))}
            </ul>
@@ -63,7 +69,11 @@ function Root() {
            
          </nav>
         </div>
-        <div id="detail">
+        <div id="detail"
+        className={
+          navigation.state === "loading" ? "loading" : ""
+        } 
+        >
           <Outlet />
         </div>
     </>
